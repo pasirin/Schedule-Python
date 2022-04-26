@@ -20,13 +20,28 @@ class Subject:
         self.start = start
         self.end = end
         self.where = where
-        self.bg_color = "#" + ''.join([random.choice('ABCDEF0123456789') for i in range(6)])
-        self.font_color = "white"
+        self.bg_color = '#' + ''.join([random.choice('ABCDEF0123456789') for i in range(6)])
+        self.font_color = self.font_color_chose()
 
     # Hàm để trả về dữ liệu cần thiết để điền vào file excel
     # Hàm này là để dễ dàng điền các dữ liệu liên quan đến môn học vào các ô của excel
     def return_data(self):
         return self.name + "\n" + self.classCode + "\n" + self.where
+
+    def font_color_chose(self):
+        extract = self.bg_color.strip('#')
+        amount = len(extract)
+        list_rgb = list(float(int(extract[i:i + amount // 3], 16)) for i in range(0, amount, amount // 3))
+        for i in range(len(list_rgb)):
+            if list_rgb[i] <= 0.03928:
+                list_rgb[i] /= 12.92
+            else:
+                list_rgb[i] = pow(((list_rgb[i] + 0.055) / 1.055), 2.4)
+        l = 0.2126 * list_rgb[0] + 0.7152 * list_rgb[1] + 0.0722 * list_rgb[2]
+        if l > 0.179:
+            return 'black'
+        else:
+            return 'white'
 
 
 # Object xử lý việc tạo bảng excel, truyền vào tên file mong muốn

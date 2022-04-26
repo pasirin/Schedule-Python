@@ -20,6 +20,8 @@ def is_link_ok(url):
 
 
 # trả về dữ liệu dạng html của file thời khóa biểu, kiểm tra tình trạng web, kiểm tra tk mk
+# 26/4/2022: giờ hàm này cũng trả về thêm một biến boolean để kiểm tra xem quá trình chạy có ok ko
+# nếu chạy ko ok thì dữ liệu trả về sẽ là lý do tại sao ko chạy được
 # Truyền vào 2 biến, là tài khoản và mật khẩu
 # nếu mk và tk là dạng string thì khi truyền vào cần có dấu ""
 # Trả về thông tin dạng html bảng thời khóa biểu
@@ -34,7 +36,7 @@ def login(LoginName, Password):
         is_ok, details = is_link_ok(url)
     if not is_ok:
         # Exception khi web trường ko vào được
-        raise Exception(details)
+        return details, False
     g = s.get(url)
     token = BeautifulSoup(g.text, 'html.parser').find('input', {'name': '__RequestVerificationToken'})['value']
     payload = {'LoginName': LoginName,
@@ -44,12 +46,11 @@ def login(LoginName, Password):
     auth = s.post(url, data=payload, headers=headers)
     if not auth.text.__contains__("Chào mừng:"):
         # Exception khi sai tk hay mk
-        raise Exception("Username or Password is incorrect!")
-    s.post(url, data=payload, headers=headers)
+        return "Username or Password is incorrect!", False
     payload2 = {'layout': 'main'}
     s.get('http://dangkyhoc.vnu.edu.vn/xem-va-in-ket-qua-dang-ky-hoc/1?layout=main', data=payload2)
     res = s.get('http://dangkyhoc.vnu.edu.vn/xuat-ket-qua-dang-ky-hoc/1')
-    return res
+    return res, True
 
 
 # trả về dữ liệu dưới dạng các object trong một list mới với tên là Subject
@@ -68,29 +69,29 @@ def table_extract(html_text):
     return subject_list
 
 
-# Thử code ở đây
-# Example:
-# đăng nhập bằng tk và mk
-#
-# data = login(tk, mk)
-#
-# Truyền dữ liệu bảng vào trong hàm tách dữ liệu
-#
-# Subject_list = table_extract(data)
-#
-# tạo một bảng excel với tên là "prototype"
-#
-# schedule = ExcelExport.Schedule("prototype")
-#
-# tạo những dự liệu cơ bản của một file tkb (ngày, tiết, giờ,...)
-#
-# schedule.create_frame_work()
-#
-# hiện tại vì mình chưa làm hàm trung gian nên nếu muốn cho
-# các môn học vào bảng thì sẽ phải cho từng môn một trong list như sau
-#
-# for x in range(len(Subject_list)):
-#     schedule.insert_subject(Subject_list[x])
-#
-# Hàm này là đóng lại bảng excel và hoàn lưu lại thay đổi
-# schedule.worktable.close()
+# giờ đây hàm này sẽ phụ trách các cái lỗi xảy ra khi chạy
+# hàm login giờ sẽ trả về 2 biến, một biến là data và một biến là bool
+# nếu trả về true thì vẫn như bình thường dữ liệu trang web các thứ
+# nếu trả về false thì data được kèm theo sẽ là tên lỗi
+# mọi người có đổi thay vì in ra thì nó sẽ trả về lỗi
+# nhưng mà làm như này thì sau khi nó trả về sẽ phải viết các hàm
+# kiểm tra xem đó là lỗi hay đó là data
+def login_protocol(Username, Password):
+    if Username is None or Password is None:
+        return "Username and Password can not be empty"
+    else:
+        return login(Username, Password)
+
+
+tk = "tai_khoan"
+mk = "mat_khau"
+data, is_ok = login_protocol(tk, mk)
+if not is_ok:
+    print(data)
+else:
+    Subject_list = table_extract(data)
+    schedule = ExcelExport.Schedule("prototype")
+    schedule.create_frame_work()
+    for x in range(len(Subject_list)):
+        schedule.insert_subject(Subject_list[x])
+    schedule.worktable.close()
