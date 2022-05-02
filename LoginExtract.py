@@ -43,12 +43,18 @@ def login(LoginName, Password):
                'Password': Password,
                '__RequestVerificationToken': token}
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    auth = s.post(url, data=payload, headers=headers)
+    try:
+        auth = s.post(url, data=payload, headers=headers, timeout=30)
+    except requests.Timeout as error:
+        return False, "Timeout, the website takes too long to respond"
     if not auth.text.__contains__("Chào mừng:"):
         # Exception khi sai tk hay mk
         return "Username or Password is incorrect!", False
     payload2 = {'layout': 'main'}
-    s.get('http://dangkyhoc.vnu.edu.vn/xem-va-in-ket-qua-dang-ky-hoc/1?layout=main', data=payload2)
+    try:
+        s.get('http://dangkyhoc.vnu.edu.vn/xem-va-in-ket-qua-dang-ky-hoc/1?layout=main', data=payload2, timeout=30)
+    except requests.Timeout as error:
+        return False, "Timeout, the website takes too long to respond"
     res = s.get('http://dangkyhoc.vnu.edu.vn/xuat-ket-qua-dang-ky-hoc/1')
     return res, True
 
@@ -83,15 +89,12 @@ def login_protocol(Username, Password):
         return login(Username, Password)
 
 
-tk = "tai_khoan"
-mk = "mat_khau"
+# Testing zone
+tk = "tk"
+mk = "mk"
 data, is_ok = login_protocol(tk, mk)
 if not is_ok:
     print(data)
 else:
     Subject_list = table_extract(data)
-    schedule = ExcelExport.Schedule("prototype")
-    schedule.create_frame_work()
-    for x in range(len(Subject_list)):
-        schedule.insert_subject(Subject_list[x])
-    schedule.worktable.close()
+    print(ExcelExport.html_table(Subject_list))

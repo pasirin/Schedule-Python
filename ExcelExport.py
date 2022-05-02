@@ -44,6 +44,31 @@ class Subject:
             return 'white'
 
 
+# Hàm này sẽ trả về bảng thời khóa biểu theo dạng ma trận 2D
+# Chỉ viêc truyền vào danh sách (list) các môn học là có thể
+# Tạo ra một ma trận 2D
+# Các môn học kéo dài nhiều tiết sẽ được đặt tên như nhau trong ma trận
+# hàm này sẽ trả về ma trận, không phải là trả về string
+def html_table(subject_list):
+    arr = [["" for i in range(8)] for j in range(15)]
+    arr[0][0] = "Tiết"
+    arr[0][1] = "Thời gian học"
+    for i in range(2, 8):
+        arr[0][i] = "Thứ " + str(i)
+    for i in range(1, 15):
+        arr[i][0] = i
+        time = str(i + 6) + "h00' - " + str(i + 6) + "h50'"
+        arr[i][1] = time
+    for i in subject_list:
+        text_for_display = i.return_data()
+        colum = int(i.date[1])
+        row_start = i.start
+        row_end = i.end + 1
+        for j in range(row_start, row_end):
+            arr[j][colum] = text_for_display
+    return arr
+
+
 # Object xử lý việc tạo bảng excel, truyền vào tên file mong muốn
 # Truyền vào name: tên của file excel mà mình muốn đặt
 # worksheet: trang tính mà mình đang làm việc với
@@ -93,3 +118,9 @@ class Schedule:
         merge_format.set_font_color(subject.font_color)
         merge_format.set_bg_color(subject.bg_color)
         self.worksheet.merge_range(merge_range, cell_data, merge_format)
+
+    def insert_list_subject(self, subject_list):
+        if subject_list is None:
+            raise Exception("The subject list is empty")
+        for i in subject_list:
+            self.insert_subject(i)
