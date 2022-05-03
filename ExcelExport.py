@@ -50,20 +50,12 @@ class Subject:
 # Các môn học kéo dài nhiều tiết sẽ được đặt tên như nhau trong ma trận
 # hàm này sẽ trả về ma trận, không phải là trả về string
 def html_table(subject_list):
-    arr = [["" for i in range(8)] for j in range(15)]
-    arr[0][0] = "Tiết"
-    arr[0][1] = "Thời gian học"
-    for i in range(2, 8):
-        arr[0][i] = "Thứ " + str(i)
-    for i in range(1, 15):
-        arr[i][0] = i
-        time = str(i + 6) + "h00' - " + str(i + 6) + "h50'"
-        arr[i][1] = time
+    arr = [["" for i in range(8)] for j in range(14)]
     for i in subject_list:
         text_for_display = i.return_data()
         colum = int(i.date[1])
-        row_start = i.start
-        row_end = i.end + 1
+        row_start = i.start - 1
+        row_end = i.end
         for j in range(row_start, row_end):
             arr[j][colum] = text_for_display
     return arr
