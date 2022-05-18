@@ -56,7 +56,7 @@ def login(LoginName, Password):
     except requests.Timeout as error:
         return False, "Timeout, the website takes too long to respond"
     res = s.get('http://dangkyhoc.vnu.edu.vn/xuat-ket-qua-dang-ky-hoc/1')
-    return res, True
+    return True, res
 
 
 # trả về dữ liệu dưới dạng các object trong một list mới với tên là Subject
@@ -92,7 +92,7 @@ def login_protocol(Username, Password):
 # Testing zone
 tk = "tk"
 mk = "mk"
-data, is_ok = login_protocol(tk, mk)
+is_ok, data = login_protocol(tk, mk)
 if not is_ok:
     print(data)
 else:

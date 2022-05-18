@@ -66,6 +66,7 @@ def html_table(subject_list):
 # worksheet: trang tính mà mình đang làm việc với
 class Schedule:
     def __init__(self, name):
+        self.File_name = name + ".xlsx"
         self.worktable = xlsxwriter.Workbook(name + ".xlsx")
         self.worksheet = self.worktable.add_worksheet()
 
