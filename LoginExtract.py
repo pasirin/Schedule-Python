@@ -36,7 +36,7 @@ def login(LoginName, Password):
         is_ok, details = is_link_ok(url)
     if not is_ok:
         # Exception khi web trường ko vào được
-        return details, False
+        return False, details
     g = s.get(url)
     token = BeautifulSoup(g.text, 'html.parser').find('input', {'name': '__RequestVerificationToken'})['value']
     payload = {'LoginName': LoginName,
@@ -49,7 +49,7 @@ def login(LoginName, Password):
         return False, "Timeout, the website takes too long to respond"
     if not auth.text.__contains__("Chào mừng:"):
         # Exception khi sai tk hay mk
-        return "Username or Password is incorrect!", False
+        return False, "Username or Password is incorrect!"
     payload2 = {'layout': 'main'}
     try:
         s.get('http://dangkyhoc.vnu.edu.vn/xem-va-in-ket-qua-dang-ky-hoc/1?layout=main', data=payload2, timeout=30)
@@ -84,7 +84,7 @@ def table_extract(html_text):
 # kiểm tra xem đó là lỗi hay đó là data
 def login_protocol(Username, Password):
     if Username is None or Password is None:
-        return "Username and Password can not be empty"
+        return False, "Username and Password can not be empty"
     else:
         return login(Username, Password)
 
