@@ -50,14 +50,14 @@ def login(LoginName, Password):
     if not auth.text.__contains__("Chào mừng:"):
         # Exception khi sai tk hay mk
         return False, "Username or Password is incorrect!"
-    if auth.text.__contains__("Không tìm thấy môn học!"):
-        return False, "There's no table to collect data from!"
     payload2 = {'layout': 'main'}
     try:
         s.get('http://dangkyhoc.vnu.edu.vn/xem-va-in-ket-qua-dang-ky-hoc/1?layout=main', data=payload2, timeout=30)
     except requests.Timeout as error:
         return False, "Timeout, the website takes too long to respond"
     res = s.get('http://dangkyhoc.vnu.edu.vn/xuat-ket-qua-dang-ky-hoc/1')
+    if res.text.__contains__("Không tìm thấy môn học!"):
+        return False, "There's no currently enrolled subject!"
     return True, res
 
 
